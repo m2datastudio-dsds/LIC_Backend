@@ -1,0 +1,202 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["Insurance"]
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+  SUPER_ADMIN
+
+  @@schema("Insurance")
+}
+
+enum ProductCategory {
+  LIFE_INSURANCE
+  HEALTH_INSURANCE
+  REAL_ESTATE
+
+  @@schema("Insurance")
+}
+
+enum EnquiryStatus {
+  NEW
+  IN_PROGRESS
+  RESPONDED
+  CLOSED
+
+  @@schema("Insurance")
+}
+
+enum QuestionStatus {
+  NEW
+  IN_PROGRESS
+  RESPONDED
+  CLOSED
+
+  @@schema("Insurance")
+}
+
+model User {
+  id            String        @id @default(uuid())
+  name          String
+  email         String        @unique
+  mobile        String?       @unique
+  passwordHash  String
+  role          Role          @default(CUSTOMER)
+  profilePhoto  String?
+  isActive      Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  enquiries     Enquiry[]
+  questions     Question[]
+
+  @@schema("Insurance")
+}
+
+model Service {
+  id               String    @id @default(uuid())
+  name             String
+  shortDescription String?
+  fullDescription  String?
+  process          String?
+  documents        Json?
+  faq              Json?
+  imageUrl         String?
+  category         ProductCategory?
+  isActive         Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([isActive])
+  @@index([name])
+  @@index([category])
+  @@schema("Insurance")
+}
+
+model Enquiry {
+  id          String          @id @default(uuid())
+  userId      String?
+  user        User?           @relation(fields: [userId], references: [id])
+  customerName String?
+  mobile      String?
+  email       String?
+  message     String
+  status      EnquiryStatus   @default(NEW)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  messages    EnquiryMessage[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@schema("Insurance")
+}
+
+model EnquiryMessage {
+  id        String   @id @default(uuid())
+  enquiryId String
+  enquiry   Enquiry  @relation(fields: [enquiryId], references: [id])
+  sender    String
+  text      String
+  createdAt DateTime @default(now())
+
+  @@schema("Insurance")
+}
+
+model Question {
+  id        String          @id @default(uuid())
+  userId    String?
+  user      User?           @relation(fields: [userId], references: [id])
+  question  String
+  answer    String?
+  status    QuestionStatus  @default(NEW)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  messages  QuestionMessage[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@schema("Insurance")
+}
+
+model QuestionMessage {
+  id         String   @id @default(uuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id])
+  sender     String
+  text       String
+  createdAt  DateTime @default(now())
+
+  @@schema("Insurance")
+}
+
+model AgentProfile {
+  id          String   @id @default(uuid())
+  name        String
+  title       String?
+  bio         String?
+  experience  String?
+  phone       String?
+  email       String?
+  whatsapp    String?
+  location    String?
+  workingHours String?
+  photoUrl    String?
+  socialLinks Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@schema("Insurance")
+}
+
+model ContactMessage {
+  id        String   @id @default(uuid())
+  name      String
+  mobile    String?
+  email     String?
+  subject   String?
+  message   String
+  status    String   @default("NEW")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+  @@schema("Insurance")
+}
+
+model Property {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  propertyType String
+  listingType String   @default("SALE")
+  status      String   @default("AVAILABLE")
+  price       Decimal  @db.Decimal(14, 2)
+  location    String
+  address     String?
+  bedrooms    Int?
+  bathrooms   Int?
+  area        Float?
+  areaUnit    String   @default("sq ft")
+  description String?
+  amenities   Json?
+  media       Json?
+  contactName String?
+  contactPhone String?
+  isFeatured  Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([propertyType])
+  @@index([location])
+  @@schema("Insurance")
+}
