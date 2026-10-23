@@ -1,8 +1,12 @@
-node_modules/
+# Secrets - never upload
 .env
 .env.*
 !.env.example
-dist/
-coverage/
+config/google-oauth-credentials.json
+config/google-oauth-token.json
 service-account*.json
 credentials*.json
+
+# Dependencies and generated files
+node_modules/
+uploads/
